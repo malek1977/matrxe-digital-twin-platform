@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String
+  name              String?
+  role              String    @default("user")
+  stripeCustomerId  String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  twins             DigitalTwin[]
+  sessions          Session[]
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  tokenHash  String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+}
+
+model DigitalTwin {
+  id                String     @id @default(cuid())
+  user              User?      @relation(fields: [userId], references: [id])
+  userId            String?
+  name              String
+  description       String?
+  language          String     @default("ar")
+  voiceSettings     Json?
+  personalityTags   Json?
+  status            String     @default("draft")
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  images            TwinImage[]
+  sampleAudioUrl    String?
+  previewVideoUrl   String?
+}
+
+model TwinImage {
+  id        String   @id @default(cuid())
+  twin      DigitalTwin @relation(fields: [twinId], references: [id])
+  twinId    String
+  url       String
+  thumbUrl  String?
+  meta      Json?
+  createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id                 String   @id @default(cuid())
+  user               User     @relation(fields: [userId], references: [id])
+  userId             String
+  stripeSubscriptionId String
+  plan               String
+  status             String
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime @default(now())
+}
+
+model JobLog {
+  id        String   @id @default(cuid())
+  type      String
+  payload   Json
+  status    String
+  result    Json?
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+}
