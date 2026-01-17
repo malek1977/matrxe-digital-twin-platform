@@ -1,0 +1,5 @@
+#!/bin/bash
+export VIRTUAL_ENV="/d/matrxe/backend/venv"
+export PATH="$VIRTUAL_ENV/Scripts:$PATH"
+export PS1="(venv) $PS1"
+echo "Virtual environment activated"
